@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if current_user.has_role("list_users") %}
+    <p><a href="/account">view a list of all user accounts</a>
+{% endif %}
+
+{% if current_user.has_role("admin_journals") %}
+    {% set Q1 = '{"query" : {"bool" : {"must" : [{"term" : {"admin.owner.exact" : "' %}
+    {% set Q2 = '"}}]}}}' %}
+    <p><a href="/admin/journals?source={{Q1}}{{account.id}}{{Q2}}">view a list of this user's journals</a>
+{% endif %}
+
+{% if current_user.id == account.id or current_user.is_super %}
+
+    <div class="row-fluid">
+        <div class="span12">
+            {% if current_user.id != account.id %}
+                <div class="alert alert-danger"><strong>NOTE</strong> you are editing a user account that is not your own.  Be careful!</div>
+            {% endif %}
+            <h2>Hi {{ account.id }}</h2>
+            <p><strong>role</strong>: {{account.role|join(", ")}}
+        </div>
+    </div>
+    <h3>Edit your details</h3>
+    <div class="row-fluid">
+        <div class="span6">
+            <div style="border: 1px solid #cccccc; padding: 10px; margin: 10px">
+                <h4>Update your email address</h4>
+                <form action="" method="POST">
+                    {% if account.email %}
+                        <input type="text" name="email" value="{{account.email}}">
+                    {% else %}
+                        <input type="text" name="email" value="" placeholder="enter your email address">
+                    {% endif %}
+                    <input type="submit" class="btn btn-success" name="submit" value="Update">
+                </form>
+            </div>
+            
+            <div style="border: 1px solid #cccccc; padding: 10px; margin: 10px">
+                <h4>Edit your user roles</h4>
+                <form action="" method="POST">
+                    {% if current_user.is_super %}
+                        <input id="editable_role" type="text" name="role" value="{{account.role|join(',')}}" style="width: 90%"><br><br>
+                        <input type="submit" class="btn btn-success" name="submit" value="Update">
+                    {% else %}
+                        <input type="text" name="role" value="{{account.role|join(',')}}" disabled="disabled">
+                        <input type="submit" class="btn btn-success" name="submit" value="Update" disabled="disabled">
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        
+        <div class="span6">
+            <div style="border: 1px solid #cccccc; padding: 10px; margin: 10px">
+                <h4>Change your password</h4>
+                <form action="" method="POST">
+                    <input type="password" name="password" placeholder="new password"><br>
+                    <input type="password" name="confirm" placeholder="confirm your new password"><br>
+                    <input type="submit" class="btn btn-success" name="submit" value="Update">
+                </form>
+            </div>
+            
+            {% if current_user.is_super %}
+            <div style="border: 1px solid #cccccc; padding: 10px; margin: 10px">
+                <h4>Delete this account</h4>
+                <p>(This <strong>irrevocably</strong> deletes the account)</p>
+                <form action="" method="POST">
+                    <input type="submit" name="submit" value="Delete" class="btn btn-danger">
+                    <input type="radio" name="confirm" value="confirm">&nbsp;yes, I'm sure
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        
+    </div>
+    
+{% else %}
+
+    <div class="row-fluid">
+        <div class="span6">
+            <div class="hero-unit">
+                <h2>{{ account.id }}</h2>
+            </div>
+        </div>
+        <div class="span6">
+            <p>You are not logged in as this user. Use the <a href="/account/login">login page</a> if you want to change this</p>
+        </div>
+    </div>
+    
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js_bottom %}
+
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $('#editable_role').select2({tags:["{{current_user.all_top_level_roles()|join('","')|safe}}"]})
+});
+</script>
+
+{% endblock extra_js_bottom %}
+
