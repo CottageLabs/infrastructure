@@ -1,6 +1,3 @@
-'''
-An auth-controlled access and retrieval mechanism for file storage
-'''
 
 from flask import Blueprint, request, abort, make_response
 

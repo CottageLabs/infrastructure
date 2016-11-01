@@ -13,6 +13,35 @@ import portality.util as util
 
 blueprint = Blueprint('accounts', __name__)
 
+
+{
+    "id":"uuid",
+    "name":"name",
+    "email":"email",
+    "membership": ["this","that"],
+    "about": {},
+    "meta": {}
+}
+
+to check permission, is an account a member of related account.
+default accounts are NAME, NAME_GET/PUT/POST/PUBLISH/DELETE/INVITE/ADMIN
+custom ones can be made and users put into them / invited to join
+if current user is same as account name then can do anything
+inviting an account to join your root_ADMIN account would give them equal privilege
+changing  group name means changing the subgroups too
+group names can include wildcards - but only the root account can create subaccounts groups
+so wildcard groups could control access to url routes - so check for groups at / boundaries
+
+who can make an account? anyone. But if the account name starts wth another account name and _ something, 
+it will be denied unless the user trying to do so is that root account or a member of it
+
+membebrship in root overrides anything. but no root membership is ever accepted via the UI
+must be manually provided from the server
+
+who can make someone a member? anyone can invite another account to be a member of a root
+anyone with control of a root can change memberships of users already members of the root
+
+
 '''
 create accounts - user, group, service
 anyone can register an account
